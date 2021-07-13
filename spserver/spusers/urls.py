@@ -8,6 +8,10 @@ urlpatterns = [
     # url(r'^register/check-email/', views.RegisterCheckEmailView.as_view()),
     # url(r'^register/check-username/', views.RegisterCheckUsernameView.as_view()),
     url(r'^register/', views.RegisterView.as_view()),
+    url(r'^update-profile/', views.UserProfileUpdateAPIView.as_view()),
+    url(r'^update-profile-image/', views.UserProfileImageUpdateAPIView.as_view()),
+
+    
     # url(r'^social-auth/google-auth-code/', views.GoogleAuthCodeView.as_view()),
     # url(r'^social-auth/', include('rest_framework_social_oauth2.urls')),
     # url(r'^oauth2/', include('oauth2_provider.urls', namespace='oauth2_provider')),

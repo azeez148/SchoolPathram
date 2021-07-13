@@ -101,10 +101,13 @@ class UserLoginSerializer(serializers.ModelSerializer):
         return result
 
 
-
 class UserProfileSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
-        fields = ('unique_id', 'username', 'email', 'first_name', 'last_name', 'phone_no')
+        fields = ('unique_id', 'username', 'email', 'first_name', 'last_name', 'phone_no',)
 
+
+class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('unique_id', 'first_name', 'last_name')

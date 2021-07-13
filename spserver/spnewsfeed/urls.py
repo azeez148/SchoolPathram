@@ -12,7 +12,7 @@ urlpatterns = [
     # url(r'^social-auth/', include('rest_framework_social_oauth2.urls')),
     # url(r'^oauth2/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^list-newsfeed/', views.NewsFeedListView.as_view()),
-    url(r'^update/',
-        views.NewsFeedView.as_view(),
+    url(r'^update-newsfeed/',
+        views.UpdateNewsFeedView.as_view(),
         name='update'),
 ]

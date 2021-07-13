@@ -22,6 +22,9 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 import Loader from './Components/Loader';
 
+import GlobalProperties from '../helper/GlobalProperties';
+
+
 const LoginScreen = ({navigation}) => {
   
 
@@ -66,8 +69,9 @@ const LoginScreen = ({navigation}) => {
       formBody.push(encodedKey + '=' + encodedValue);
     }
     formBody = formBody.join('&');
+    let url = GlobalProperties.BASE_URL + "/spaccount/login/";
 
-    fetch('http://192.168.8.101:8001/spaccount/login/', {
+    fetch(url, {
       method: 'POST',
       body: JSON.stringify(dataToSend),
       headers: {
@@ -91,9 +95,7 @@ const LoginScreen = ({navigation}) => {
 
           user_obj.uuid = responseJson.data.unique_id;
 
-
           storeData(user_obj);
-
 
           console.log(user_obj);
           navigation.replace('DrawerNavigationRoutes');
@@ -115,17 +117,18 @@ const LoginScreen = ({navigation}) => {
         //Hide Loader
         setLoading(false);
         console.error(error);
+        alert(error);
       });
   };
 
   const storeData = async (value) => {
     try {
-      const jsonValue = JSON.stringify(value)
-      await AsyncStorage.setItem('@u_info', jsonValue)
+      const jsonValue = JSON.stringify(value);
+      await AsyncStorage.setItem('@u_info', jsonValue);
     } catch (e) {
       // saving error
     }
-  }
+  };
   return (
     <View style={styles.mainBody}>
       <Loader loading={loading} />

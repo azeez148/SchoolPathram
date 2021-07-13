@@ -14,6 +14,9 @@ import SplashScreen from './Screen/SplashScreen';
 import LoginScreen from './Screen/LoginScreen';
 import RegisterScreen from './Screen/RegisterScreen';
 import DrawerNavigationRoutes from './Screen/DrawerNavigationRoutes';
+import NewsFeedDetailScreen from './Screen/DrawerScreens/NewsFeedDetailScreen';
+
+
 
 const Stack = createStackNavigator();
 
@@ -67,6 +70,12 @@ const App = () => {
           component={DrawerNavigationRoutes}
           // Hiding header for Navigation Drawer
           options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="NewsFeedDetailScreen"
+          component={NewsFeedDetailScreen}
+          // Hiding header for Splash Screen
+          options={{headerShown: true}}
         />
       </Stack.Navigator>
     </NavigationContainer>

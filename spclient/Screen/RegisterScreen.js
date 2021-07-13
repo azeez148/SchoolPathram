@@ -17,6 +17,9 @@ import {
 
 import Loader from './Components/Loader';
 
+import GlobalProperties from '../helper/GlobalProperties';
+
+
 const RegisterScreen = (props) => {
   const [userName, setUserName] = useState('');
   const [userFName, setUserFName] = useState('');
@@ -44,7 +47,6 @@ const RegisterScreen = (props) => {
   const cPasswordInputRef = createRef();
   
   const userNameInputRef = createRef();
-
 
   const handleSubmitButton = () => {
     setErrortext('');
@@ -98,8 +100,9 @@ const RegisterScreen = (props) => {
       formBody.push(encodedKey + '=' + encodedValue);
     }
     formBody = formBody.join('&');
+    let url = GlobalProperties.BASE_URL + "/spaccount/register/";
 
-    fetch('http://192.168.8.101:8001/spaccount/register/', {
+    fetch(url, {
       method: 'POST',
       body: JSON.stringify(dataToSend),
       headers: {

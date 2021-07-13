@@ -9,14 +9,20 @@ from django.http import QueryDict
 
 from spnewsfeed.serializers import NewsFeedSerializer
 from rest_framework.views import APIView
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_201_CREATED, HTTP_404_NOT_FOUND
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_201_CREATED, HTTP_404_NOT_FOUND, HTTP_304_NOT_MODIFIED
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from spusers.models import User
 from spusers.settings import PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, LOCAL_OAUTH2_KEY
 import requests as makerequest
 
-from .models import NewsFeed
+from spusers.permissions import IsAdmin
+
+
+from rest_framework.parsers import MultiPartParser, FormParser, FileUploadParser
+
+
+from .models import NewsFeed, Image
 
 
 class NewsFeedView(APIView):
@@ -24,15 +30,28 @@ class NewsFeedView(APIView):
     An API endpoint for user registration.
     POST must contain 'username', 'email', 'first_name', 'last_name' and 'password' fields.
     """
-    permission_classes = (IsAuthenticated, )
+    permission_classes = [IsAuthenticated, IsAdmin]
     authentication_classes = (TokenAuthentication, )
+    # parser_classes = (MultiPartParser, FormParser,)
+    parser_class = (FileUploadParser,)
+
+
 
     def post(self, request):
 
         # newsfeed_obj = NewsFeed(title=request.data['title'], description=request.data['description'], is_active=True, created_by=user)
         # newsfeed_obj_dict = newsfeed_obj.__dict__
 
-        print (request.data)
+        # print (request.data)
+        images_data = []
+        try:
+            images_data = request.data.pop('file')
+        except AttributeError as e:
+            print (e)
+
+        # print (images_data)
+
+
         user = User.objects.get(unique_id=request.data['created_by'])
 
         ordinary_dict = {'created_by': user.id, 'title': request.data['title'],  'description': request.data['description'] }
@@ -89,13 +108,27 @@ class NewsFeedView(APIView):
             is_active=True,
             created_by=validated_data['created_by']
         )
+
         newsfeed.save()
+        image_data_list = []
+
+        try:
+            for image_data in images_data:
+                image = Image(newsfeed=newsfeed, image=image_data)
+                image.save()
+                image_data_list.append(str(image))
+            else:
+                print ('test')
+        except Exception as inst:
+              print("An exception occurred")
+              print (inst)
 
         newsfeedObj = {
             "title": newsfeed.title,
             "description": newsfeed.description,
             "created_by": newsfeed.created_by.first_name,
-            "is_active": newsfeed.is_active
+            "is_active": newsfeed.is_active,
+            "images": image_data_list
         }
         dataobj = {
             'data': newsfeedObj,
@@ -113,19 +146,34 @@ class NewsFeedListView(APIView):
     serializer_class = NewsFeedSerializer
 
     def get(self, request):
-        queryset = NewsFeed.objects.all()
+        queryset = NewsFeed.objects.order_by('created').all().reverse()
         serializer = self.serializer_class(queryset, many=True)
 
+        # import pudb; pudb.set_trace()
         newsfeed_list = []
         for newsfeed in serializer.data:
             user = User.objects.get(id=newsfeed['created_by'])
+            image_list = []
+            newsfeed_obj = NewsFeed.objects.get(uuid=newsfeed['uuid'])
+            images = Image.objects.all().filter(newsfeed=newsfeed_obj)
+            for image in images:
+                image_obj = {}
+
+                print (image.image.url)
+                image_obj['url'] = image.image.url
+                image_obj['name'] = image.image.name
+                image_obj['path'] = image.image.path
+                image_obj['id'] = image.uuid
+
+                image_list.append(image_obj)
 
             newsfeedObj = {
                 "title": newsfeed['title'],
                 "description": newsfeed['description'],
                 "created_by": user.first_name,
                 "is_active": newsfeed['is_active'],
-                "id": newsfeed['uuid']
+                "id": newsfeed['uuid'],
+                "images": image_list
             }
             newsfeed_list.append(newsfeedObj)
 
@@ -135,69 +183,65 @@ class NewsFeedListView(APIView):
         }
         return HttpResponse(json.dumps(data_obj, cls=DjangoJSONEncoder), content_type='application/json', status=HTTP_200_OK)
 
-# class UserLoginAPIView(APIView):
-#     """
-#     Endpoint for user login. Returns authentication token on success.
-#     """
 
-#     permission_classes = (AllowAny,)
-#     serializer_class = UserLoginSerializer
-#     user_class = get_user_model()
+class UpdateNewsFeedView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
+    authentication_classes = (TokenAuthentication, )
+    serializer_class = NewsFeedSerializer
+
+    def put(self, request, *args, **kwargs):
+        images_data = []
+        try:
+            images_data = request.data.pop('file')
+            print (images_data)
+
+        except AttributeError as e:
+            print (e)
+
+        try:
+            newsfeed = NewsFeed.objects.get(uuid=request.data['newsfeed_id'])
+        except Exception as e:
+            dataobj = {
+            'data': str(e),
+            'success': False
+            }
+
+            return HttpResponse(json.dumps(dataobj, cls=DjangoJSONEncoder), content_type='application/json', status=HTTP_304_NOT_MODIFIED)
+
+        newsfeed.title = request.data['title']
+        newsfeed.description = request.data['description']
+        newsfeed.save()
+
+        image_data_list = []
+
+        # images = Image.objects.all().filter(newsfeed=newsfeed)
+        # for image in images:
+        #     image.delete()
+
+        try:
+            for image_data in images_data:
+                image = Image(newsfeed=newsfeed, image=image_data)
+                image.save()
+                image_data_list.append(str(image))
+            else:
+                print ('test')
+        except Exception as inst:
+              print("An exception occurred")
+              print (inst)
+
+        newsfeedObj = {
+            "title": newsfeed.title,
+            "description": newsfeed.description,
+            "created_by": newsfeed.created_by.first_name,
+            "is_active": newsfeed.is_active,
+            "images": image_data_list
+        }
 
 
-#     def post(self, request):
-#         serializer = self.serializer_class(data=request.data)
-#         serializer.is_valid()
+        dataobj = {
+            'data': newsfeedObj,
+            'success': True
+        }
 
-#         if not serializer.is_valid():
-#             result = {'success': False, 'type': 'login'}
-#             result['message'] = 'Login failed, Please check the credentials.'
-#             result['err_field'] = None
-#             return HttpResponse(json.dumps(result, cls=DjangoJSONEncoder), content_type='application/json', status=HTTP_400_BAD_REQUEST)
+        return HttpResponse(json.dumps(dataobj, cls=DjangoJSONEncoder), content_type='application/json', status=HTTP_200_OK)
 
-#         user = serializer.validated_data['user_obj']
-#         user_serializer = UserSerializer(user)
-#         print (user)
-
-#         data_obj = {
-#             'token': serializer.data['token'],
-#             'data': user_serializer.data,
-#             'success': True
-#             }
-#         return HttpResponse(json.dumps(data_obj, cls=DjangoJSONEncoder), content_type='application/json', status=HTTP_200_OK)
-
-
-# class UserProfileAPIView(generics.RetrieveAPIView):
-#     """
-#     Endpoint to retrieve user profile.
-#     """
-
-#     permission_classes = (IsAuthenticated, )
-#     authentication_classes = (TokenAuthentication, )
-#     serializer_class = UserProfileSerializer
-
-#     def get(self, request):
-#         serializer = self.serializer_class(request.user, context={'request': request})
-#         data_obj = {
-#             'data': serializer.data,
-#             'success': True
-#             }
-#         return HttpResponse(json.dumps(data_obj, cls=DjangoJSONEncoder), content_type='application/json', status=HTTP_200_OK)
-
-
-# class UserListAPIView(APIView):
-#     """
-#     Endpoint for user list.
-#     """
-#     permission_classes = (IsAuthenticated, )
-#     authentication_classes = (TokenAuthentication, )
-#     serializer_class = UserProfileSerializer
-
-#     def get(self, request):
-#         queryset = User.objects.all()
-#         serializer = self.serializer_class(queryset, many=True)
-#         data_obj = {
-#             'data': serializer.data,
-#             'success': True
-#         }
-#         return HttpResponse(json.dumps(data_obj, cls=DjangoJSONEncoder), content_type='application/json', status=HTTP_200_OK)

@@ -17,7 +17,6 @@ from spusers import secrets
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
@@ -32,6 +31,11 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '192.168.43.131'
 ]
+
+# ADMIN_EMAILS = [
+#     'schoolpathramacademy@gmail.com',
+#     'azeez148@gmail.com'
+# ]
 
 # A list of origin hostnames that are authorized to make a cross-site HTTP
 # request
@@ -163,7 +167,14 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+MEDIA_ROOT =  os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
-# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# STATIC_ROOT = os.path.join(BASE_DIR, ‘static’)
+
+# Activate Django-Heroku.

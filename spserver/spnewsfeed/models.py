@@ -18,3 +18,8 @@ class NewsFeed(models.Model):
     )
     is_active = models.BooleanField(default=False)
 
+class Image(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    image = models.ImageField(blank=True, null=True, upload_to='images/')
+    newsfeed = models.ForeignKey(NewsFeed, default=None, on_delete=models.CASCADE,)
+

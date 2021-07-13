@@ -19,7 +19,15 @@ class User(AbstractUser):
     email = models.EmailField(_('email address'), unique = True)
 #   native_name = models.CharField(max_length = 5)
     phone_no = models.CharField(max_length = 10)
+    is_admin = models.BooleanField(default=False)
+    
 #   USERNAME_FIELD = 'email'
 #   REQUIRED_FIELDS = ['username', 'email']
     # def __str__(self):
     #     return "{} {}".format(self.email)
+
+class Image(models.Model):
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    image = models.ImageField(blank=True, null=True, upload_to='images/')
+    user = models.ForeignKey(User, default=None, on_delete=models.CASCADE,)
+    created = models.DateTimeField(auto_now_add=True)

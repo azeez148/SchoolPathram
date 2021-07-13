@@ -14,3 +14,8 @@ USERNAME_MAX_LENGTH = 80  # Cannot be more than 150 as it is using the default d
 # it must equal the value in configs.js client-side.
 # This is also why the client type is set to `public`, as per rfc6749 section 2.1
 LOCAL_OAUTH2_KEY = "HdNeilGFzpQcTIEXe32LlzgpcSNzYosTo5krYhpk"
+
+ADMIN_EMAILS = [
+    'schoolpathramacademy@gmail.com',
+    'azeez148@gmail.com'
+]
