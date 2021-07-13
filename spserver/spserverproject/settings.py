@@ -29,7 +29,8 @@ SECRET_KEY = 'django-insecure-k@v_q9@jiaa1@dasrp@0ki!x&_&7$&mk$hs@t53am+1qf-3ax9
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '192.168.43.131'
+    '192.168.43.131',
+    'azeez148.pythonanywhere.com'
 ]
 
 # ADMIN_EMAILS = [
