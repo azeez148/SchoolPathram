@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('unique_id', 'username', 'email', 'first_name', 'last_name', 'phone_no')
+        fields = ('unique_id', 'username', 'email', 'first_name', 'last_name', 'phone_no', 'is_admin')
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
